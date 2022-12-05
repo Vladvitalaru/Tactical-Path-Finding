@@ -9,23 +9,6 @@ import time
 totaltime = time.time_ns()
 
 
-'''
-Road: '.' cost: 1
-Grass: ',' cost: 2
-Rocks: 'o' cost: 3
-Walls: '=', cost: 50
-Character: '0', '1', '2', or '3'
-('0' represents the controlled character, '1' represents a friendly character,
-'2' represents the target character, and '3' represents a non-target enemy character)
-(two humans cannot be in the same tile, so no cost is listed)
-
-Additionally, if a player moves diagonally, it counts as 1.5x the number of movement points
-as the tile type indicates (so moving diagonally into rocks costs 4.5 points).
-
-You will read in the input and determine the shortest path between the character '0' and the character '2'. 
-The final square must be the closest adjacent square to the 2 (not the 2 itself, two characters may not occupy the same tile).
-'''
-
 ''' Node class holding information about each tile '''
 class Node():
     def __init__(self, tile, cost, row, col):
@@ -174,7 +157,7 @@ def main():
         
         grid.append(row)
         x = -1
-
+        
     Matrix(grid, start)
     time_taken_in_microseconds = ( time.time_ns() - totaltime ) / 1000.0 
     print(f"Time taken in microseconds: {time_taken_in_microseconds} ", end = " ")
