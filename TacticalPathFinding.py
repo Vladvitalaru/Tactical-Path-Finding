@@ -39,7 +39,7 @@ class Node():
     def __lt__(self, next):
         return self.totalCost < next.totalCost
         
-''' Matrix class holding grid & Dijksras algorithm'''
+''' Matrix class holding grid & Dijkstras algorithm'''
 class Matrix():
     def __init__(self, grid, start):
         self.grid = grid        #tile map
@@ -47,72 +47,91 @@ class Matrix():
         self.visited = []       #visited array
         self.pq = []            #priority que
         self.final = 0          #final path score
-        self.Dijksras()         #run Dijkras
+        self.Dijkstras()        #run Dijkstras
         self.Display(self.grid) #print final tile map
         print(f'\nTotal Cost: {self.final}')
         
+    '''Main Dijkstras loop pushing and popping from priority que'''
+    def Dijkstras(self):
+        #Add starting node to visited
+        self.visited.append(self.grid[self.start[0]][self.start[1]]) 
         
-    def Dijksras(self):
-        
-        self.visited.append(self.grid[self.start[0]][self.start[1]]) #Add starting node to visited
-        
-        self.grid[self.start[0]][self.start[1]].totalCost = 0        #Set start node totalCost to 0
+        #Set start node totalCost to 0
+        self.grid[self.start[0]][self.start[1]].totalCost = 0   
 
-        heap.heappush(self.pq, self.grid[self.start[0]][self.start[1]])  #Push start node onto heap
+        #Push start node onto heap
+        heap.heappush(self.pq, self.grid[self.start[0]][self.start[1]])  
         
         while self.pq:
-            next = heap.heappop(self.pq)
-                
-            if next.tile == "2": #if we have found destination
+            #Pop node with smallest totalCost off que
+            next = heap.heappop(self.pq) 
+            
+            #if we have found destination
+            if next.tile == "2": 
                 self.final = next.totalCost
-                cursor = next.prev
-                while cursor.prev:  #loop backwards through prev for path
+                cursor = next.prev  #loop backwards through prev for shortest path
+                while cursor.prev:  
                     if cursor.tile == "0": 
                         return
                     else:
                         cursor.tile = "*"
                         cursor = cursor.prev
-                    
-                   
+            
+            #Grab neighboring nodes        
             self.Neighbors(next.row, next.col)
+            
         return 
         
+    '''Checks neighboring nodes of row, col, adds to visited list & pushes to priority queue'''
     def Neighbors(self, row, col):
         original = (row, col)
-                
-        originalCost = self.grid[original[0]][original[1]].totalCost #totalCost of currentNode
-        
-        for rowAdd in range(-1, 2): #for rows around
+        #totalCost of currentNode        
+        originalCost = self.grid[original[0]][original[1]].totalCost 
+        #for row value
+        for rowAdd in range(-1, 2): 
             newRow = row + rowAdd
             
-            if newRow >= 0 and newRow <= len(self.grid)-1: #for cols around
-                
-                for colAdd in range(-1, 2):
+            if newRow >= 0 and newRow <= len(self.grid)-1: 
+                #for col value
+                for colAdd in range(-1, 2): 
                     newCol = col + colAdd
                     
-                    if newCol >= 0 and newCol <= len(self.grid)-1: #if index within boundary
+                    #if index within boundary
+                    if newCol >= 0 and newCol <= len(self.grid)-1: 
+                        
+                        #if at the current node, skip
                         if newCol == col and newRow == row:
                             continue
                         
-                        if self.grid[newRow][newCol] in self.visited: #if we have already visited, move on
+                        #if we have already visited, skip
+                        elif self.grid[newRow][newCol] in self.visited: 
                             continue
                         
-                        if self.grid[newRow][newCol].cost < 0: #If other player occupies tile, skip
+                        #if other player occupies tile, skip
+                        elif self.grid[newRow][newCol].cost < 0: 
                             continue
-                                                
-                        if (rowAdd and colAdd == -1) or (rowAdd and colAdd == 1): #if neighbor at NW or SE nodes
+                        
+                        #if neighbor at NW or SE nodes, 1.5x neighbor cost 
+                        elif (rowAdd and colAdd == -1) or (rowAdd and colAdd == 1): 
                             newCost = originalCost + (self.grid[newRow][newCol].cost * 1.5)
                             
-                        elif (rowAdd == 1 and colAdd == -1) or (rowAdd == - 1 and colAdd == 1): #if neighbor at SW or NE nodes 
+                        #if neighbor at SW or NE nodes, 1.5x neighbor cost 
+                        elif (rowAdd == 1 and colAdd == -1) or (rowAdd == - 1 and colAdd == 1):  
                             newCost = originalCost + (self.grid[newRow][newCol].cost * 1.5)
                             
-                        else:
+                        else: #Else, newCost is original + neighbor cost
                             newCost = originalCost + self.grid[newRow][newCol].cost
                         
+                        #Update total cost for neighbor nodes
                         self.grid[newRow][newCol].totalCost = newCost
+                        
+                        #Set current node as previous for neighbor nodes
                         self.grid[newRow][newCol].prev = self.grid[original[0]][original[1]]
                         
-                        self.visited.append(self.grid[newRow][newCol]) #Add to visited 
+                        #Add to visited 
+                        self.visited.append(self.grid[newRow][newCol])
+                         
+                        #push tile onto heap
                         heap.heappush(self.pq,self.grid[newRow][newCol]) #push tile onto heap
         return
         
@@ -136,9 +155,10 @@ def main():
         }
     
     grid = [] #Grid 
-    y = -1 #row
-    x = -1 #col
+    y = -1    #row
+    x = -1    #col
     
+    #Loop through STDIN
     for line in sys.stdin.readlines():
         y += 1
         row = []
